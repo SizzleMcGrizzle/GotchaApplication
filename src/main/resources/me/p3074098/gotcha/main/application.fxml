@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="420.0" prefWidth="793.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.p3074098.gotcha.controller.ApplicationController">
+    <children>
+        <VBox layoutX="532.0" prefHeight="422.0" prefWidth="261.0" styleClass="search-sidebar">
+            <children>
+                <HBox alignment="CENTER" prefHeight="43.0" prefWidth="223.0" styleClass="search-field">
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </VBox.margin>
+                    <children>
+                        <TextField fx:id="searchField" onKeyReleased="#onSearchFieldKeyPressed" prefHeight="25.0" prefWidth="164.0" promptText="Insert name to search..." styleClass="search-text-field">
+                            <HBox.margin>
+                                <Insets right="5.0" />
+                            </HBox.margin>
+                        </TextField>
+                        <Button fx:id="searchButton" mnemonicParsing="false" onAction="#onSearchButtonPress" prefHeight="23.0" prefWidth="57.0" styleClass="search-go" text="Search" textAlignment="CENTER" textFill="WHITE">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" prefHeight="266.0" prefWidth="261.0" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" />
+                    </padding>
+                    <children>
+                        <ScrollPane hbarPolicy="NEVER" prefHeight="207.0" prefWidth="241.0" styleClass="transparent">
+                            <content>
+                                <GridPane fx:id="searchGrid" alignment="CENTER" prefHeight="0.0" prefWidth="0.0">
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" />
+                                    </rowConstraints>
+                                </GridPane>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </HBox>
+                <VBox fx:id="selectedVBox" prefHeight="106.0" prefWidth="261.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <HBox prefHeight="36.0" prefWidth="241.0" styleClass="selected-contestant-label" VBox.vgrow="ALWAYS">
+                            <children>
+                                <Label fx:id="selectedContestantLabel" prefHeight="25.0" prefWidth="312.0" text="Selected" textAlignment="CENTER" textFill="WHITE">
+                                    <HBox.margin>
+                                        <Insets left="5.0" top="5.0" />
+                                    </HBox.margin>
+                                    <padding>
+                                        <Insets left="10.0" />
+                                    </padding>
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                            <VBox.margin>
+                                <Insets left="10.0" right="10.0" top="5.0" />
+                            </VBox.margin>
+                        </HBox>
+                        <HBox prefHeight="58.0" prefWidth="261.0">
+                            <padding>
+                                <Insets top="10.0" />
+                            </padding>
+                            <children>
+                                <Button fx:id="killButton" mnemonicParsing="false" onAction="#onKillButtonPress" prefHeight="38.0" prefWidth="73.0" styleClass="selected-button" text="Kill" textFill="WHITE">
+                                    <HBox.margin>
+                                        <Insets left="10.0" />
+                                    </HBox.margin>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND" />
+                                    </cursor>
+                                </Button>
+                                <Button fx:id="removeButton" mnemonicParsing="false" onAction="#onRemoveButtonPress" prefHeight="38.0" prefWidth="80.0" styleClass="selected-button" text="Remove" textFill="WHITE">
+                                    <HBox.margin>
+                                        <Insets left="10.0" />
+                                    </HBox.margin>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND" />
+                                    </cursor>
+                                </Button>
+                                <Button fx:id="reviveButton" mnemonicParsing="false" onAction="#onReviveButtonPress" prefHeight="39.0" prefWidth="67.0" styleClass="selected-button" text="Revive" textFill="WHITE">
+                                    <HBox.margin>
+                                        <Insets left="10.0" />
+                                    </HBox.margin>
+                                    <cursor>
+                                        <Cursor fx:constant="HAND" />
+                                    </cursor>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
+                </VBox>
+            </children>
+        </VBox>
+        <VBox layoutX="257.0" layoutY="-1.0" prefHeight="408.0" prefWidth="275.0">
+            <children>
+                <HBox alignment="CENTER" prefHeight="43.0" prefWidth="223.0" styleClass="action-box">
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                    </VBox.margin>
+                    <children>
+                        <Label fx:id="optionAll" alignment="CENTER" onMousePressed="#optionButtonClick" prefHeight="43.0" prefWidth="117.0" text="All" textAlignment="CENTER">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                            <styleClass>
+                                <String fx:value="option-label" />
+                                <String fx:value="option-label-selected" />
+                            </styleClass>
+                        </Label>
+                        <Label fx:id="optionRing" alignment="CENTER" onMousePressed="#optionButtonClick" prefHeight="43.0" prefWidth="114.0" styleClass="option-label" text="Ring" textAlignment="CENTER">
+                            <HBox.margin>
+                                <Insets />
+                            </HBox.margin>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Label>
+                        <Label fx:id="optionGraveyard" alignment="CENTER" onMousePressed="#optionButtonClick" prefHeight="43.0" prefWidth="121.0" styleClass="option-label" text="Graveyard" textAlignment="CENTER">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Label>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" prefHeight="345.0" prefWidth="282.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <ScrollPane hbarPolicy="NEVER" prefHeight="345.0" prefWidth="239.0" styleClass="transparent">
+                            <content>
+                                <GridPane fx:id="displayGrid" prefHeight="3.0" prefWidth="0.0">
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                </GridPane>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+        <VBox prefHeight="422.0" prefWidth="261.0" styleClass="search-sidebar">
+            <children>
+                <HBox prefHeight="161.0" prefWidth="261.0">
+                    <children>
+                        <ImageView fitHeight="145.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@gotcha.png" />
+                            </image>
+                            <HBox.margin>
+                                <Insets top="30.0" />
+                            </HBox.margin>
+                        </ImageView>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" prefHeight="36.0" prefWidth="241.0" styleClass="search-field">
+                    <children>
+                        <TextField fx:id="addTextField" onKeyReleased="#onAddFieldKeyPressed" prefHeight="25.0" prefWidth="157.0" promptText="Insert name to add..." styleClass="search-text-field">
+                            <HBox.margin>
+                                <Insets right="5.0" />
+                            </HBox.margin>
+                        </TextField>
+                        <Button fx:id="addPlayerButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onKeyPressed="#onAddFieldKeyPressed" prefHeight="23.0" prefWidth="65.0" styleClass="add-button" text="Add" textFill="WHITE">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </VBox.margin>
+                </HBox>
+                <HBox prefHeight="147.0" prefWidth="261.0" />
+                <HBox prefHeight="41.0" prefWidth="261.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <Button fx:id="resetButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onResetButtonPressed" prefHeight="0.0" prefWidth="319.0" styleClass="reset-button" text="Reset">
+                            <HBox.margin>
+                                <Insets left="70.0" right="70.0" />
+                            </HBox.margin>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+        <HBox alignment="BOTTOM_CENTER" layoutY="421.0" prefHeight="27.0" prefWidth="794.0" styleClass="console-label">
+            <children>
+                <Label fx:id="consoleLabel" prefHeight="45.0" prefWidth="773.0" textFill="WHITE" HBox.hgrow="ALWAYS">
+                    <HBox.margin>
+                        <Insets left="10.0" right="10.0" />
+                    </HBox.margin>
+                </Label>
+            </children>
+        </HBox>
+    </children>
+</AnchorPane>

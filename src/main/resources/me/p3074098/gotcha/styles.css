@@ -1,0 +1,89 @@
+.item-background {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0.5, 0.0, 0.0);
+}
+
+.item-header {
+    -fx-background-color: rgb(63, 132, 242);
+    -fx-background-radius: 10px 10px 0px 0px;
+}
+
+.search-field {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0.5, 0.0, 0.0);
+    -fx-background-radius: 50px;
+    -fx-background-color: white;
+}
+
+.search-sidebar {
+    -fx-background-color: lightgray;
+}
+
+.add-button {
+        -fx-background-color: rgb(63, 132, 242);
+        -fx-background-radius: 20px;
+}
+
+.search-go {
+    -fx-background-color: gray;
+    -fx-background-radius: 20px;
+}
+
+.item-grid {
+    -fx-background-radius: 10px;
+    -fx-background-color: white;
+}
+
+.search-text-field {
+    -fx-background-color: transparent;
+}
+
+.transparent{
+-fx-background-radius: 50px;
+    -fx-background-color: rgba(0,0,0,0);
+}
+
+.action-box {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0.5, 0.0, 0.0);
+    -fx-background-color: white;
+    -fx-background-radius: 50px;
+}
+
+.option-label {
+    -fx-background-color: white;
+    -fx-background-radius: 50px;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.option-label-selected {
+    -fx-background-color: rgb(62, 250, 97);
+}
+
+.selected-contestant-label {
+    -fx-background-color: #333;
+    -fx-background-radius: 50px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0.5, 0.0, 0.0);
+}
+
+.selected-button {
+    -fx-background-color: gray;
+    -fx-background-radius: 50px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0.5, 0.0, 0.0);
+}
+
+.hidden {
+    -fx-opacity: 0;
+}
+
+.console-label {
+    -fx-background-color: #333;
+}
+
+.reset-button {
+    -fx-background-color: rgb(199, 70, 70);
+    -fx-background-radius: 50px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0.5, 0.0, 0.0);
+}
