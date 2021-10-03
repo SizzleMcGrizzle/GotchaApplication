@@ -1,5 +1,8 @@
 package me.p3074098.gotcha.controller;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,88 +19,114 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+import me.p3074098.gotcha.main.ApplicationEntry;
 import me.p3074098.gotcha.main.Contestant;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class ApplicationController implements Initializable {
     
-    @FXML
-    private TextField searchField;
-    @FXML
-    private Button searchButton;
-    @FXML
-    private GridPane searchGrid;
-    @FXML
-    private VBox selectedVBox;
-    @FXML
-    private Label selectedContestantLabel;
-    @FXML
-    private Button killButton;
-    @FXML
-    private Button removeButton;
-    @FXML
-    private Button reviveButton;
-    @FXML
-    private Label optionRing;
-    @FXML
-    private Label optionGraveyard;
-    @FXML
-    private Label optionAll;
-    @FXML
-    private GridPane displayGrid;
-    @FXML
-    private Label consoleLabel;
-    @FXML
-    private Button addPlayerButton;
-    @FXML
-    private TextField addTextField;
-    @FXML
-    private Button resetButton;
+    private static final int seconds = 30;
+    private static ApplicationController instance;
     
-    private Contestant selectedContestant;
-    private Label selectedOption;
-    private Label[] options;
+    @FXML
+    private transient TextField searchField;
+    @FXML
+    private transient Button searchButton;
+    @FXML
+    private transient GridPane searchGrid;
+    @FXML
+    private transient VBox selectedVBox;
+    @FXML
+    private transient Label selectedContestantLabel;
+    @FXML
+    private transient Button killButton;
+    @FXML
+    private transient Button removeButton;
+    @FXML
+    private transient Button reviveButton;
+    @FXML
+    private transient Label optionRing;
+    @FXML
+    private transient Label optionGraveyard;
+    @FXML
+    private transient Label optionAll;
+    @FXML
+    private transient GridPane displayGrid;
+    @FXML
+    private transient Label consoleLabel;
+    @FXML
+    private transient Button addPlayerButton;
+    @FXML
+    private transient TextField addTextField;
+    @FXML
+    private transient Button resetButton;
+    
+    private transient Contestant selectedContestant;
+    private transient Label selectedOption;
+    private transient Label[] options;
+    private transient Console console;
+    private transient Image aliveImage;
+    private transient Image deadImage;
+    
+    //Serialized values
     private LinkedList<Contestant> ring;
     private LinkedList<Contestant> graveyard;
-    private Console console;
-    
     private int round;
     private int id;
     
-    private Image aliveImage;
-    private Image deadImage;
+    public static ApplicationController getInstance() {
+        return instance;
+    }
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        instance = this;
+        
         options = new Label[]{optionAll, optionRing, optionGraveyard};
         selectedOption = optionAll;
         console = new Console();
 //        selectedVBox.getStyleClass().add("hidden");
         selectedVBox.setVisible(false);
         selectedVBox.setManaged(false);
-        round = 1;
-        id = 0;
-        
-        console.out(getClass().getProtectionDomain().getCodeSource().getLocation().toExternalForm());
         
         deserialize();
         fillContestantGrid();
         fillSearchGrid("");
+        
+        console.out("Game successfully started.");
+        
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(seconds), e -> serialize()));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
     }
     
     @FXML
     public void onResetButtonPressed(ActionEvent event) {
-        console.out("Resetting game...");
+        
+        round = 1;
+        id = 0;
+        ring.clear();
+        graveyard.clear();
+        
+        serialize();
+        
         initialize(null, null);
+        
+        console.out("Game reset.");
     }
     
     @FXML
@@ -117,6 +146,8 @@ public class ApplicationController implements Initializable {
         if (addTextField.getText().isEmpty())
             return;
         
+        ApplicationEntry.mainStage.setTitle("*Gotcha!");
+        
         Contestant c = new Contestant(addTextField.getText(), id++);
         ring.add(c);
         addTextField.clear();
@@ -125,7 +156,6 @@ public class ApplicationController implements Initializable {
         
         fillContestantGrid();
         fillSearchGrid(searchField.getText());
-        
     }
     
     @FXML
@@ -140,6 +170,8 @@ public class ApplicationController implements Initializable {
             return;
         }
         
+        ApplicationEntry.mainStage.setTitle("*Gotcha!");
+        
         Contestant previous = getPreviousInList(selectedContestant);
         previous.addKill();
         
@@ -149,7 +181,7 @@ public class ApplicationController implements Initializable {
         ring.remove(selectedContestant);
         graveyard.add(selectedContestant);
         
-        console.out(previous.getName() + " killed " + selectedContestant.getName());
+        console.out(previous.getName() + " killed " + selectedContestant.getName() + ".");
         
         fillContestantGrid();
         fillSearchGrid(searchField.getText());
@@ -162,6 +194,8 @@ public class ApplicationController implements Initializable {
     @FXML
     public void onRemoveButtonPress(ActionEvent event) {
         console.out("Removed " + selectedContestant.getName() + " from the game permanently.");
+        
+        ApplicationEntry.mainStage.setTitle("*Gotcha!");
         
         ring.remove(selectedContestant);
         graveyard.remove(selectedContestant);
@@ -179,6 +213,8 @@ public class ApplicationController implements Initializable {
             return;
         }
         
+        ApplicationEntry.mainStage.setTitle("*Gotcha!");
+        
         console.out("Revived " + selectedContestant.getName() + " from the graveyard.");
         
         selectedContestant.setDead(false);
@@ -192,12 +228,14 @@ public class ApplicationController implements Initializable {
     }
     
     public int fillSearchGrid(String input) {
+        final String uppercaseInput = input.toUpperCase();
+        
         searchGrid.getChildren().clear();
         
         List<Contestant> filtered = new ArrayList<>(graveyard);
         filtered.addAll(ring);
         
-        filtered = filtered.stream().filter(name -> name.getName().startsWith(input)).collect(Collectors.toList());
+        filtered = filtered.stream().filter(name -> name.getName().toUpperCase().startsWith(uppercaseInput)).collect(Collectors.toList());
         
         int col = 0, row = 1;
         for (int i = 0; i < filtered.size(); i++) {
@@ -217,15 +255,18 @@ public class ApplicationController implements Initializable {
     }
     
     public int fillContestantGrid() {
-        List<Contestant> filtered = new ArrayList<>();
+        List<Contestant> filtered;
         
-        if (selectedOption.equals(optionRing))
-            filtered = new ArrayList<>(ring);
-        else if (selectedOption.equals(optionAll)) {
-            filtered = new ArrayList<>(ring);
-            filtered.addAll(graveyard);
-        } else
-            filtered = new ArrayList<>(graveyard);
+        if (ring != null && graveyard != null)
+            if (selectedOption.equals(optionRing))
+                filtered = new ArrayList<>(ring);
+            else if (selectedOption.equals(optionAll)) {
+                filtered = new ArrayList<>(ring);
+                filtered.addAll(graveyard);
+            } else
+                filtered = new ArrayList<>(graveyard);
+        else
+            filtered = new ArrayList<>();
         
         displayGrid.getChildren().clear();
         
@@ -283,19 +324,38 @@ public class ApplicationController implements Initializable {
         aliveImage = new Image(getClass().getResourceAsStream("alive.png"));
         deadImage = new Image(getClass().getResourceAsStream("dead.png"));
         
-        ring = new LinkedList<>();
-        graveyard = new LinkedList<>();
-        
-        List<String> names = new ArrayList<>();
-        Scanner scanner = new Scanner(getClass().getResourceAsStream("gotcha.txt"));
-        while (scanner.hasNext())
-            names.add(scanner.nextLine());
-        scanner.close();
-        
-        for (String name : names)
-            ring.add(new Contestant(name, id++));
-        
-        Collections.shuffle(ring);
+        try {
+            File file = new File(new File(getClass().getProtectionDomain().getCodeSource().getLocation().getFile()).getParentFile(), "database.txt");
+            
+            if (!file.exists()) {
+                file.createNewFile();
+                ring = new LinkedList<>();
+                graveyard = new LinkedList<>();
+                id = 0;
+                round = 1;
+                return;
+            }
+            
+            InputStream stream = new FileInputStream(file);
+            
+            if (stream.available() == 0) {
+                ring = new LinkedList<>();
+                graveyard = new LinkedList<>();
+                id = 0;
+                round = 1;
+                return;
+            }
+            
+            ObjectInputStream inputStream = new ObjectInputStream(stream);
+            
+            this.id = inputStream.readInt();
+            this.round = inputStream.readInt();
+            this.ring = (LinkedList<Contestant>) inputStream.readObject();
+            this.graveyard = (LinkedList<Contestant>) inputStream.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
     
     @FXML
@@ -308,7 +368,7 @@ public class ApplicationController implements Initializable {
             if (!l.equals(selectedOption))
                 l.getStyleClass().remove("option-label-selected");
         
-        console.out("Switched display category to " + selectedOption.getText());
+        console.out("Switched display category to " + selectedOption.getText() + ".");
         
         fillContestantGrid();
     }
@@ -317,6 +377,27 @@ public class ApplicationController implements Initializable {
         int index = ring.indexOf(who);
         
         return index == 0 ? ring.get(ring.size() - 1) : ring.get(index - 1);
+    }
+    
+    public void serialize() {
+        try {
+            File file = new File(new File(getClass().getProtectionDomain().getCodeSource().getLocation().getFile()).getParentFile(), "database.txt");
+            if (!file.exists())
+                file.createNewFile();
+            
+            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
+            
+            stream.writeInt(id);
+            stream.writeInt(round);
+            stream.writeObject(ring);
+            stream.writeObject(graveyard);
+            
+            stream.flush();
+            console.out("Automatically saving...");
+            ApplicationEntry.mainStage.setTitle("Gotcha!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     private class Console {
