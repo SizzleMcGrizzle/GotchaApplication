@@ -24,17 +24,14 @@ import me.p3074098.gotcha.main.ApplicationEntry;
 import me.p3074098.gotcha.main.Contestant;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class ApplicationController implements Initializable {
@@ -81,6 +78,7 @@ public class ApplicationController implements Initializable {
     private transient Console console;
     private transient Image aliveImage;
     private transient Image deadImage;
+    private transient File file;
     
     //Serialized values
     private LinkedList<Contestant> ring;
@@ -99,19 +97,36 @@ public class ApplicationController implements Initializable {
         options = new Label[]{optionAll, optionRing, optionGraveyard};
         selectedOption = optionAll;
         console = new Console();
-//        selectedVBox.getStyleClass().add("hidden");
         selectedVBox.setVisible(false);
         selectedVBox.setManaged(false);
+        file = new File("./app/data/database.txt");
         
         deserialize();
         fillContestantGrid();
         fillSearchGrid("");
         
         console.out("Game successfully started.");
-        
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(seconds), e -> serialize()));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
+    }
+    
+    private void createFiles() {
+        try {
+            File runtimeDirectory = new File("./app/data");
+            
+            if (!runtimeDirectory.exists())
+                runtimeDirectory.mkdirs();
+            
+            if (!file.exists()) {
+                file.setWritable(true, false);
+                file.setReadable(true, false);
+                file.setExecutable(true, false);
+                file.createNewFile();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     @FXML
@@ -166,8 +181,12 @@ public class ApplicationController implements Initializable {
     @FXML
     public void onKillButtonPress(ActionEvent event) {
         if (selectedContestant.isDead()) {
-            console.out(selectedContestant + " could not be killed because they are already dead.");
+            console.out(selectedContestant.getName() + " could not be killed because they are already dead.");
             return;
+        }
+        
+        if (ring.size() == 1) {
+            console.out(selectedContestant.getName() + " could not be killed because they are the last contestant alive.");
         }
         
         ApplicationEntry.mainStage.setTitle("*Gotcha!");
@@ -199,6 +218,10 @@ public class ApplicationController implements Initializable {
         
         ring.remove(selectedContestant);
         graveyard.remove(selectedContestant);
+        
+        selectedContestant = null;
+        selectedVBox.setVisible(false);
+        selectedVBox.setManaged(false);
         
         fillContestantGrid();
         
@@ -257,16 +280,13 @@ public class ApplicationController implements Initializable {
     public int fillContestantGrid() {
         List<Contestant> filtered;
         
-        if (ring != null && graveyard != null)
-            if (selectedOption.equals(optionRing))
-                filtered = new ArrayList<>(ring);
-            else if (selectedOption.equals(optionAll)) {
-                filtered = new ArrayList<>(ring);
-                filtered.addAll(graveyard);
-            } else
-                filtered = new ArrayList<>(graveyard);
-        else
-            filtered = new ArrayList<>();
+        if (selectedOption.equals(optionRing))
+            filtered = new ArrayList<>(ring);
+        else if (selectedOption.equals(optionAll)) {
+            filtered = new ArrayList<>(ring);
+            filtered.addAll(graveyard);
+        } else
+            filtered = new ArrayList<>(graveyard);
         
         displayGrid.getChildren().clear();
         
@@ -320,42 +340,29 @@ public class ApplicationController implements Initializable {
         return anchorPane;
     }
     
+    public void resetDefaults() {
+        ring = new LinkedList<>();
+        graveyard = new LinkedList<>();
+        id = 0;
+        round = 1;
+    }
+    
     public void deserialize() {
         aliveImage = new Image(getClass().getResourceAsStream("alive.png"));
         deadImage = new Image(getClass().getResourceAsStream("dead.png"));
         
-        try {
-            File file = new File(new File(getClass().getProtectionDomain().getCodeSource().getLocation().getFile()).getParentFile(), "database.txt");
-            
-            if (!file.exists()) {
-                file.createNewFile();
-                ring = new LinkedList<>();
-                graveyard = new LinkedList<>();
-                id = 0;
-                round = 1;
-                return;
-            }
-            
-            InputStream stream = new FileInputStream(file);
-            
-            if (stream.available() == 0) {
-                ring = new LinkedList<>();
-                graveyard = new LinkedList<>();
-                id = 0;
-                round = 1;
-                return;
-            }
-            
-            ObjectInputStream inputStream = new ObjectInputStream(stream);
-            
-            this.id = inputStream.readInt();
-            this.round = inputStream.readInt();
-            this.ring = (LinkedList<Contestant>) inputStream.readObject();
-            this.graveyard = (LinkedList<Contestant>) inputStream.readObject();
-            
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        resetDefaults();
+        
+        List<String> names = new ArrayList<>();
+        Scanner scanner = new Scanner(getClass().getResourceAsStream("gotcha.txt"));
+        while (scanner.hasNext())
+            names.add(scanner.nextLine());
+        scanner.close();
+        
+        for (String name : names)
+            ring.add(new Contestant(name, id++));
+        
+        Collections.shuffle(ring);
     }
     
     @FXML
@@ -380,24 +387,24 @@ public class ApplicationController implements Initializable {
     }
     
     public void serialize() {
-        try {
-            File file = new File(new File(getClass().getProtectionDomain().getCodeSource().getLocation().getFile()).getParentFile(), "database.txt");
-            if (!file.exists())
-                file.createNewFile();
-            
-            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
-            
-            stream.writeInt(id);
-            stream.writeInt(round);
-            stream.writeObject(ring);
-            stream.writeObject(graveyard);
-            
-            stream.flush();
-            console.out("Automatically saving...");
-            ApplicationEntry.mainStage.setTitle("Gotcha!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//
+//            if (!file.exists())
+//                createFiles();
+//
+//            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
+//
+//            stream.writeInt(id);
+//            stream.writeInt(round);
+//            stream.writeObject(ring);
+//            stream.writeObject(graveyard);
+//
+//            stream.flush();
+//            console.out("Automatically saving...");
+//            ApplicationEntry.mainStage.setTitle("Gotcha!");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
     
     private class Console {
